@@ -330,3 +330,22 @@ Key sections:
 - `iterations_compared`: Detailed findings for each file in each iteration
 - `cross_iteration_comparison`: Strengths, weaknesses, symmetry analysis, verdict
 - `final_recommendations`: Priority fixes and future-generation guidance
+
+## 18. Methodology Evolution: Planning Session & Decisions
+
+Following the audit analysis in Iteration 9, a planning session was held to integrate findings into the global methodology. The following decisions and clarifications were made:
+
+### 18.1 Consolidation to Global Methodology
+- **Feedback:** The `mock-skill.md` was a case-study specific file and should not be maintained long-term.
+- **Decision:** All insights regarding Rule 3 (Action/Result separation) and Rule 4 (Precondition purity) were merged directly into the global `cursor-methodology/.cursor/skills/qa-descriptive-test-generation/SKILL.md`. The mock files will be deleted.
+
+### 18.2 Generalization of Paired-Test Approach (Option B)
+- **Feedback:** The "Sequential Generation with Golden Example" approach (Option B) should not be limited to Buy/Sell tests.
+- **Decision:** The methodology was updated to generalize this approach for *any* variant testing (e.g., Account/Demo, Standard/Margin, Synchronized/Asynchronous). The rule now dictates a primary/secondary generation pattern with symmetry constraints for any single-dimension variant.
+
+### 18.3 Wave Execution Exception
+- **Feedback:** The strict commit-after-phase rule interrupted planned sequences of execution (like simultaneous generation or code-review chains).
+- **Decision:** A new "Phase Checkpoint Protocol" (Section 12) was added to `agentic-behavior.mdc` that introduces a **Wave Execution Exception**. Planned waves of related tasks will now run to logical completion before requiring a commit.
+
+### 18.4 Predictability Guidelines
+- **Decision:** A new centralized document `predictability-guidelines.md` was created to house the lessons learned from this case study, including parallel vs. sequential trade-offs, vocabulary mapping, and common asymmetry patterns.

@@ -1,21 +1,27 @@
 # Summary
-For a **Market Buy** opening order, the Order Entry **Order Value** must equal the instrument-currency notional **QtyLots × LotSize × InstrumentMultiplier × Current Ask**, then converted from the instrument’s value currency into the **account base currency** using the platform’s conversion rules at the UI snapshot. This test validates that the displayed value follows the **ask** leg of the formula (not the bid) by comparing the UI **Order Value** to an ask-based expected amount and to a bid-based counterfactual at the same instant. Scope is standard marginal **FX/CFD-style** instruments per session assumptions; excluded instrument families (e.g. Spread Bet, Direct Exchange, Net-based FX) are out of scope.
+
+For a **Market Buy** opening order, the Order Entry **Order Value** must equal the instrument-currency notional **QtyLots × LotSize × InstrumentMultiplier × Current Ask**, then converted from the instrument's value currency into the **account base currency** using the platform's conversion rules at the UI snapshot. This test validates that the displayed value follows the **ask** leg of the formula (not the bid) by comparing the UI **Order Value** to an ask-based expected amount and to a bid-based counterfactual at the same instant. Scope is standard marginal **FX/CFD-style** instruments per session assumptions; excluded instrument families (e.g. Spread Bet, Direct Exchange, Net-based FX) are out of scope.
 
 **Traceability:**
+
 - Test List: `qa-sessions/web-otc-order-entry/test-list.md` — `[AC-22]`
 - Requirement: `DX-WEB-097` / Order Value in Account Currency (`qa-sessions/web-otc-order-entry/requirement.md` — Calculation Rules, **Market Buy** / Order Value section)
 
 # Component
+
 OTC Order Entry
 
 # Severity
+
 Functional
 
 # Test Items
+
 Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Current Bid** as shown for the active symbol and side context
 
 # Preconditions
-1. User is logged into the trading platform with an account whose **base currency** is known to the tester.
+
+1. User is logged into the trading platform. The account's **base currency** must be explicitly confirmed or documented (via UI, configuration, or documentation) prior to test execution.
 2. **Order Entry** is open for a **new** opening order on a tradable instrument.
 3. The instrument is a **standard marginal FX or CFD** instrument (not Spread Bet, Direct Exchange, Net-based FX, or other excluded extensions per `test-list.md` working assumptions).
 4. The tester can obtain **QtyLots** (order size in lots), **LotSize**, and **InstrumentMultiplier** from the trading UI, instrument metadata, or an **approved configuration source** for that symbol at test time.
@@ -24,6 +30,7 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 7. **Order type** can be set or confirmed as **Market**; **Buy** side is selectable.
 
 # Actions
+
 1. Select the **Buy** side. [Valid: same instrument as in Preconditions; OE remains on new opening order]
 2. Set or confirm **Order type** is **Market**. [Valid: matches `[AC-06]` default **Market** for new order where applicable]
 3. Enter a **lot quantity** in the size control. [Valid: strictly **positive**; satisfies min/max lot rules and **Min Order Size Increment** for the instrument]
@@ -37,10 +44,12 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 11. Compare the recorded **Order Value** from step 7 to **counterfactual Order Value (bid-based)** from step 9.
 
 # Results
+
 - The **Order Value** from step 7 **matches** the **expected Order Value (ask-based)** from step 8 (per agreed tolerance / formatting rules).
 - The **Order Value** from step 7 **does not match** the **counterfactual Order Value (bid-based)** from step 9 (demonstrating use of **Ask**, not **Bid**, for Market Buy notional).
 
 # Options
+
 - Symmetric **Market Sell** with **Bid** is `[AC-23]`.
 - **Order Value** display **precision** vs account base currency is `[AC-25]`.
 - Cross-currency conversion consistency with the displayed quote set is `[AF-09]`; fixture reconciliation is `[IG-05]`.
@@ -48,7 +57,9 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 - **Current Price** display rules (bid/ask per side) are `[AC-07]`; **Size** description for FX/CFD is `[AC-20]` / `[AC-21]`.
 
 # Peculiarities
+
 **Symbols (aligned with AC-22 header):**
+
 - **Q** = **QtyLots** (lots entered in the size control)
 - **LS** = **LotSize**
 - **M** = **InstrumentMultiplier** (same as **Multiplier** in the test-list header)
@@ -58,9 +69,11 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 
 **N_ask** = **Q × LS × M × A**
 
-Per `requirement.md` (Order Value / **Market Buy**), **Order Value** = **Q × LS × M × A** in instrument terms, then **converted from the instrument’s value currency into the account base currency**. The captured requirement text does not define the conversion rate or method; **C** denotes that mapping from **N_ask** (instrument currency) to account base currency at the snapshot instant—obtain **C** from an **environment-approved** source (e.g. risk/pricing reference, approved calculator, or `[IG-05]` fixture procedure).
+Per `requirement.md` (Order Value / **Market Buy**), **Order Value** = **Q × LS × M × A** in instrument terms, then **converted from the instrument's value currency into the account base currency**. The captured requirement text does not define the conversion rate or method; **C** denotes that mapping from **N_ask** (instrument currency) to account base currency at the snapshot instant—obtain **C** from an **environment-approved** source (e.g. risk/pricing reference, approved calculator, or `[IG-05]` fixture procedure).
 
 **Edge / definition notes:**
+
 - If **account base currency** equals the instrument **value currency**, **C** may be identity; the test still asserts the **Q × LS × M × A** leg via step 10 vs step 11 when **Ask ≠ Bid**.
 - **Order Value** field precision is governed by **account base currency** rules; do not fold a separate precision assertion here—defer to `[AC-25]` for precision-focused checks.
 - **Counterfactual** uses **Bid** only to prove the **Ask** leg; it is not a product requirement for Market Buy display.
+

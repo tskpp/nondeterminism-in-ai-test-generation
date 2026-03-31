@@ -1,5 +1,5 @@
 # Summary
-Order Value - Market Sell notional uses bid with the same quantity formula as Market Buy (lots × lot size × multiplier × side-appropriate price), then converts to account base currency. This is the symmetric Sell-side check to Market Buy’s ask-based Order Value.
+Order Value - Market Sell notional uses bid with the same quantity formula as Market Buy (lots × lot size × multiplier × side-appropriate price), then converts to account base currency. This is the symmetric Sell-side check to Market Buy's ask-based Order Value.
 
 **Traceability:**
 - Test List: `[AC-23]`
@@ -15,12 +15,13 @@ Functional
 Order Entry Form, Order Value display
 
 # Preconditions
-1. User is logged into the trading platform.
+1. User is logged into the trading platform. The account's **base currency** must be explicitly confirmed or documented (via UI, configuration, or documentation) prior to test execution.
 2. Order Entry popup is open for a **new** opening order on an instrument.
 3. The instrument is a standard marginal FX or CFD instrument (not Spread Bet, Direct Exchange, Net-based FX, or other excluded extensions per session test-list assumptions).
 4. The tester can read **QtyLots** (order size in lots), **LotSize**, and **InstrumentMultiplier** from the trading UI, instrument metadata, or an approved configuration source for that symbol.
-5. The account’s **base currency** is known to the tester.
+5. Live quotes are available: **Current Ask** and **Current Bid** are both shown on Order Entry (or equivalent approved source synchronized with OE) for the symbol.
 6. At the recording instant, **Current Ask** and **Current Bid** differ so that **Q** × **LS** × **M** × **Bid** and **Q** × **LS** × **M** × **Ask** produce different instrument-currency notionals before conversion.
+7. **Order type** can be set or confirmed as **Market**; **Sell** side is selectable.
 
 # Actions
 1. Select the `Sell` side. [Valid: same instrument as in Preconditions]
@@ -42,7 +43,7 @@ Order Entry Form, Order Value display
 # Options
 - Symmetric **Market Buy** coverage with **Ask** is under `[AC-22]`.
 - **Pending** Limit/Stop Order Value using the pending order price is under `[AC-24]`.
-- **Order Value** display precision versus account base currency is under `[AC-25]`.
+- **Order Value** display precision versus account base currency is `[AC-25]`.
 - Cross-currency conversion consistency with the displayed quote set is under `[AF-09]`.
 - Live recalculation when **Bid** or size changes is under `[AC-26]`; tiered quote selection by size is under `[AC-08]`.
 
@@ -53,7 +54,7 @@ Let **Q** = **QtyLots**, **LS** = **LotSize**, **M** = **InstrumentMultiplier**,
 
 **N_bid** = **Q** × **LS** × **M** × **B**
 
-Per `requirement.md`, **Order Value for Market Sell Orders** uses the same quantity structure as Market Buy (**Q** × **LS** × **M**) multiplied by the **Current Bid Price** (**B**), then the result is **converted from the instrument’s value currency into the account base currency**. The captured requirement text does not define the conversion rate or method; **C** denotes that conversion mapping from **N_bid** in instrument terms to account base currency at the UI snapshot instant.
+Per `requirement.md`, **Order Value for Market Sell Orders** uses the same quantity structure as Market Buy (**Q** × **LS** × **M**) multiplied by the **Current Bid Price** (**B**), then the result is **converted from the instrument's value currency into the account base currency**. The captured requirement text does not define the conversion rate or method; **C** denotes that conversion mapping from **N_bid** in instrument terms to account base currency at the UI snapshot instant.
 
 **Order Value** field precision = **Account Base Currency precision** (`requirement.md`).
 
