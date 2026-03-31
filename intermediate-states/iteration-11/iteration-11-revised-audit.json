@@ -1,0 +1,111 @@
+{
+  "audit_date": "2026-03-31",
+  "methodology_version": "iteration-11-revised",
+  "test_cases_audited": ["AC-22", "AC-23"],
+  "audit_results": {
+    "AC-22": {
+      "structural_integrity": "FAIL",
+      "critical_checks": {
+        "ask_bid_precondition_removed": false,
+        "actions_cognitive_free": false,
+        "results_assertions_only": false,
+        "findings": [
+          "Precondition 6 still requires Ask ≠ Bid as a hard blocker (isolates ask vs bid); revised methodology removes this as blocking precondition.",
+          "Actions 8–11 contain Compute (steps 8–9) and Compare (steps 10–11), violating Action/Result separation; cognitive work must live in Results only.",
+          "Results include two asserted outcomes; counterfactual negative (bid-based mismatch) must be moved to Peculiarities as optional explanation per revised methodology.",
+          "Critical checklist: No conditional clauses in Results — PASS (no when/if/provided that in Results bullets).",
+          "Critical checklist: No Compute/Calculate/Compare/Verify in Actions 1–7 — PASS for verbs; steps 8–11 violate."
+        ]
+      },
+      "major_checks": {
+        "symmetric_to_ac23": false,
+        "findings": [
+          "Traceability block format differs from AC-23 (full paths vs abbreviated Test List line only).",
+          "Test Items: AC-22 names Current Ask/Bid and read-only Order Value; AC-23 only 'Order Value display' — asymmetry.",
+          "Precondition 2 wording: 'Order Entry is open' vs AC-23 'Order Entry popup is open'.",
+          "Precondition 4: 'tester can obtain' vs AC-23 'tester can read' — paired wording not mirrored.",
+          "Both map to DX-WEB-097 — PASS on requirement reference substance."
+        ]
+      },
+      "medium_checks": {
+        "system_state_preconditions": false,
+        "findings": [
+          "Precondition 1 embeds explicit documentation/confirmation requirement; revised methodology targets removal of explicit documentation requirement from core preconditions.",
+          "Precondition 5 'Live quotes are available' should be dropped from core five per Precondition Reduction.",
+          "Precondition 4 is tester-capability phrasing ('tester can obtain') rather than pure system state.",
+          "[Valid:] partitions present on Actions 1–7 and align with buy-side intent.",
+          "Peculiarities define Q, LS, M, A, N_ask, C; B and N_bid appear in Actions but B/N_bid are contextual for counterfactual — acceptable if counterfactual moves to Peculiarities only."
+        ]
+      },
+      "overall_status": "CRITICAL_ISSUES",
+      "issue_count": { "critical": 2, "major": 1, "medium": 3 }
+    },
+    "AC-23": {
+      "structural_integrity": "FAIL",
+      "critical_checks": {
+        "ask_bid_precondition_removed": false,
+        "actions_cognitive_free": false,
+        "results_assertions_only": false,
+        "findings": [
+          "Precondition 6 still requires Current Ask and Current Bid to differ (same as Ask ≠ Bid blocker in effect) — must not block execution.",
+          "Actions 8–11: Compute (8–9) and Compare (10–11) in Actions — CRITICAL violation of Action/Result separation.",
+          "Results assert both primary equality and counterfactual inequality; second bullet must move to Peculiarities optional note.",
+          "No conditional clauses in Results — PASS.",
+          "Actions 1–7 use Record/Select/Confirm/Input — no Compare/Compute in 1–7; steps 8–11 fail cognitive-free Actions rule."
+        ]
+      },
+      "major_checks": {
+        "symmetric_to_ac22": false,
+        "findings": [
+          "Traceability: Test List shows `[AC-23]` only; AC-22 includes file path and fuller requirement anchor — align structure.",
+          "Summary length and Test Items detail differ from AC-22.",
+          "Side/field formatting: AC-23 uses backticks for Sell/Market in some actions; AC-22 uses bold for Buy/Market — minor presentation asymmetry.",
+          "Precondition and action step counts match AC-22 (7 preconditions, 11 actions) — partial structural parity."
+        ]
+      },
+      "medium_checks": {
+        "system_state_preconditions": false,
+        "findings": [
+          "Precondition 1: explicit confirm/document base currency — reduce per methodology.",
+          "Precondition 5: Live quotes — remove from core five.",
+          "Precondition 4: 'The tester can read' — not system-state-only phrasing.",
+          "[Valid:] partitions present on Actions 1–3, 5; step 4 omits explicit [Valid:] tag present in AC-22 step 4 pattern — slight inconsistency.",
+          "Peculiarities define Q, LS, M, B, N_bid, C; N_ask used in Action 9 but N_ask is not given the same definitional prominence as N_bid (methodology asks N_ask, N_bid defined — partial gap)."
+        ]
+      },
+      "overall_status": "CRITICAL_ISSUES",
+      "issue_count": { "critical": 2, "major": 1, "medium": 4 }
+    }
+  },
+  "symmetry_analysis": {
+    "preconditions_aligned": false,
+    "actions_pattern_identical": true,
+    "results_phrasing_mirrored": true,
+    "field_names_consistent": false,
+    "divergences": [
+      "Traceability block layout and path detail differ (AC-22 file path + DX-WEB-097 section anchor vs AC-23 shortened lines).",
+      "Test Items: AC-22 lists read-only Order Value and Current Ask/Bid; AC-23 shorter.",
+      "Precondition 2: 'Order Entry is open' vs 'Order Entry popup is open'.",
+      "Precondition 4: 'obtain' vs 'read' for QtyLots/LotSize/Multiplier.",
+      "Markdown convention: **bold** vs `backticks` for side and order type in Actions.",
+      "Options section: different linked AC lists and ordering (acceptable content difference but not mirror-identical structure).",
+      "Peculiarities: AC-22 includes edge notes on Ask≠Bid counterfactual and AC-25 deferral; AC-23 different depth and missing symmetric edge notes."
+    ]
+  },
+  "recommendations": {
+    "immediate_fixes": [
+      "Remove Ask≠Bid (or equivalent 'differ so that notionals differ') from blocking Preconditions; if useful, add optional non-blocking note under Peculiarities.",
+      "Collapse core Preconditions to five: drop explicit documentation requirement phrasing from prec 1, remove 'Live quotes available' as a separate precondition, remove Ask≠Bid blocker; keep login/base currency, OE new order, instrument family, access to Q/LS/M sources, Market + side.",
+      "Rewrite Actions to end at step 7 with only UI interaction and simultaneous UI reads (record) if still allowed as non-cognitive; move all compute, conversion, formatting, and comparison into Results as expected outcomes.",
+      "Results: single primary assertion (Order Value matches ask-based expected for AC-22 / bid-based for AC-23); relocate counterfactual inequality to Peculiarities as optional explanation only.",
+      "Normalize AC-23 Traceability to match AC-22 (paths, requirement line, Market Sell section anchor).",
+      "Align Test Items, precondition wording (obtain vs read, Order Entry phrasing), and markdown styling (**Order Value**, side labels) across AC-22 and AC-23.",
+      "In AC-23 Peculiarities, add explicit N_ask definition/formula mirroring how AC-22 presents N_ask for symmetry."
+    ],
+    "deferred_items": [
+      "Decide whether 'record at same instant' steps 4–7 remain under Actions or move to a dedicated 'Observations' subsection if methodology tightens 'UI only' further.",
+      "Harmonize Options bullets to same ordering pattern where possible without losing case-specific references.",
+      "Optional: single template block for conversion C and tolerance language reused in both files."
+    ]
+  }
+}
