@@ -224,3 +224,109 @@ We updated the core skills instead of manually fixing the generated tests, ensur
 1. **Anti-Cognitive Rule:** Updated `.cursor/skills/qa-descriptive-test-generation/SKILL.md` (Phase 0.5, Rule 2) and the `test-case-auditor.md` (Rule 3) to explicitly ban cognitive steps, computations, and comparisons in the `Actions` section.
 2. **Anti-Counterfactual Rule:** Added explicit instructions forbidding agents from computing or asserting the outcome of the opposite scenario just to prove a mismatch.
 3. **System-State Preconditions:** Mandated that Preconditions must define objective system states, explicitly banning descriptions of tester knowledge or capabilities.
+
+## 15. Execution State (Iteration 9 - Haiku)
+
+### 15.1 Generation using Haiku
+We spawned two isolated subagents (using the fast model) to generate AC-10 (Buy) and AC-11 (Sell) into `intermediate-states/iteration-9-haiku/`. The goal was to check if they can generate highly symmetrical tests following all guided intelligence rules (including explicit formulas, anti-conditionals, and atomicity) directly on the first pass.
+
+### 15.2 Results
+Both sub-agents successfully generated the test cases. Key observations:
+1. **Symmetry:** Both test cases shared identical structure and phrasing, adjusted only for the Buy vs. Sell side.
+2. **Explicit Formula:** The `default_distance` calculation was explicitly defined in Peculiarities rather than using lazy references.
+3. **No Conditionals:** Results used unconditional present-tense statements.
+4. **Data Partitions:** Valid data partitions were properly marked with `[Valid: ...]` syntax.
+5. **Consistent Traceability:** Both inherited the same requirements (DX-WEB-095 as base, with DX-WEB-086 properly added to Sell to match Buy).
+Overall, the generation was highly predictable and followed the strict formatting rules perfectly without requiring an auditor to fix major deviations.
+
+## 16. Execution State (Iteration 9 - Gemini)
+
+### 16.1 Generation using Gemini (Default Model)
+We repeated the same task from Iteration 9 - Haiku, but this time we spawned two isolated subagents using the default Gemini model to generate AC-10 (Buy) and AC-11 (Sell) into `intermediate-states/iteration-9-gemini/`. 
+
+### 16.2 Results
+Both sub-agents successfully generated the test cases, but they demonstrated significant structural drift compared to the Haiku run:
+1. **Asymmetry in Phrasing:** Despite having the exact same instructions and rules, the two sub-agents drifted. AC-10 used the label `Stop` price field, while AC-11 used `Order Price` field.
+2. **Formula Representation Drift:** AC-10 included the mathematical substitution directly inline in the Results section, whereas AC-11 referenced the computation in Peculiarities.
+3. **Traceability Inference:** AC-11 successfully included `DX-WEB-086` based on a prompt constraint to maintain trace symmetry with AC-10.
+4. **General Formatting:** The sub-agents correctly followed the physical action constraints (anti-cognitive rules), used imperative verbs, and avoided conditionals in Results.
+
+Overall, this reinforced the finding that parallel isolated agents, even with highly capable models like Gemini, will drift in phrasing and variable naming unless strictly bound by a sequential "Golden Example" or explicitly synchronized by a single auditor sub-agent.
+
+## 17. Execution State (Iteration 9-Audit - Comprehensive Auditor Review & Comparison)
+
+### 17.1 Audit Scope & Methodology
+A comprehensive auditor sub-agent was tasked to:
+1. Audit iteration-9-haiku test cases against all 7 audit rules
+2. Audit iteration-9-gemini test cases against all 7 audit rules
+3. Perform structured cross-iteration comparison
+4. Generate synthesized improved versions based on audit findings
+5. Produce formal JSON audit report and markdown comparative analysis
+
+### 17.2 Audit Findings Summary
+
+**Iteration 9-Haiku Status: FAILED**
+- **Critical Rule 3 violations (both files):** Actions sections contained cognitive steps ("Compute default_distance", "Compute expected_default_stop", "Compare the value from step 6 to expected_default_stop"). Per auditor rules, all computations and comparisons must live in Results/Peculiarities, not Actions.
+- **Major Rule 4 violations (both files):** Preconditions framed parameter availability as "known from product configuration or the UI" (tester knowledge) rather than purely "platform exposes these values".
+- **Strengths:** Strong structural symmetry between Buy and Sell variants; consistent `Stop` price field terminology across both; explicit display-tolerance wording ("within one display tick"); snapshot timing clearly stated.
+
+**Iteration 9-Gemini Status: NEEDS_IMPROVEMENT**
+- **AC-10 (Buy):** Mostly compliant. Rule 3 clean (Actions are interactions only). Rule 4 preconditions properly system-oriented. Minor: Summary style uses em dash instead of Object - Action pattern.
+- **AC-11 (Sell) Major Issues:**
+  - **Rule 5 Major:** Field label divergence: Buy uses `Stop` price field, Sell uses `Order Price` field — inconsistent domain terminology.
+  - **Rule 7 Major:** Asymmetry with own Buy variant: field names differ, step ordering narrative differs (Buy records after type selection; Sell records before switch), Options section present only on Sell (rounding deferred to AC-14c).
+  - **Rule 4 Major:** Precondition 3 uses "known to the tester" wording (same violation as Haiku, just on the Sell file).
+- **Strengths:** Buy case demonstrates proper Action/Result separation; Sell interactions are clean (no cognitive steps).
+
+### 17.3 Cross-Iteration Comparative Analysis
+
+**Dimension Scorecard:**
+| Dimension | Winner | Details |
+|-----------|--------|---------|
+| **Atomicity** | Tie | Both bundle default + freeze checks as one logical flow |
+| **Result Phrasing** | Tie | Both use present tense correctly |
+| **Action/Result Separation** | Gemini (Buy) | Haiku fails with compute/compare in Actions; Gemini Buy clean |
+| **Preconditions Quality** | Gemini Buy | Haiku + Gemini Sell use tester-knowledge language; Gemini Buy is system-state oriented |
+| **Terminology Consistency** | Haiku | Haiku uses `Stop` consistently; Gemini diverges (Buy `Stop`, Sell `Order Price`) |
+| **Anti-Counterfactual** | Tie | Both clean |
+| **Buy/Sell Symmetry** | Haiku | Haiku mirrors perfectly except direction/Ask-Bid; Gemini Sell regresses significantly |
+
+**Better Attempt: TIE (Rationale)**
+- Haiku wins on **paired-case symmetry**, **domain terminology**, and **tick tolerance clarity** but fails on **rule 3 fundamentals**.
+- Gemini Buy wins on **action-result separation** and **precondition purity** but the iteration as a whole is weakened by the Sell variant's asymmetry, field-naming drift, and reintroduction of tester-knowledge language.
+- No single iteration dominates all dimensions; an optimal solution synthesizes Gemini's clean Actions-Result separation applied to both sides, with Haiku's symmetry structure, field labels, tolerance wording, and snapshot ordering.
+
+### 17.4 Synthesized Improved Output
+The auditor generated corrected versions combining best practices:
+
+**Improvements Applied:**
+1. **Rule 3 Fix:** All computation and comparison logic removed from Actions. Actions contain only: record snapshot → select side → select Stop → read field → wait → read field again. Expected value assertions and formulas live in Results (with formula reference in Peculiarities).
+2. **Rule 4 Fix:** Preconditions rewritten to describe platform-exposed state ("The instrument has an active streaming quote feed"; "Platform or contract data exposes Stop/Limit distance, pip_size, and price_increment") with no tester-knowledge phrasing.
+3. **Rule 5 & 7 Fix:** Both Buy and Sell use consistent `Stop` price field label; actions mirror except for direction (Buy vs Sell) and side adjustment (Ask+ vs Bid−).
+4. **Rule 2 Maintained:** Results remain unconditional present-tense statements.
+5. **Options Alignment:** Both files have `Options: None` for consistency (Gemini Sell's AC-14c rounding pointer was dropped to maintain pairing symmetry; can be re-added to both if cross-AC pointers are desired).
+
+**Output Location:** `intermediate-states/iteration-10-haiku-thinking-audit/`
+- `10-oe-default-stop-price-buy.md` (improved)
+- `11-oe-default-stop-price-sell.md` (improved)
+- `audit-report.json` (formal audit findings)
+- `comparison-analysis.md` (comparative analysis narrative)
+
+### 17.5 Key Insights for Methodology Evolution
+
+1. **Parallel Agent Drift is Unavoidable Without Synchronization:** Even with explicit rules, two isolated agents (Haiku and Gemini) drifted on field naming, step ordering, and precondition phrasing. A single auditor reading both files simultaneously can catch and correct these asymmetries, but only after generation.
+
+2. **Rule 3 (Action/Result Separation) is a High-Risk Area:** Both iterations showed agent tendency to embed computation and comparison in Actions. This suggests the "anti-cognitive rule" guidance needs to be even more explicit or enforced via lint-style verification before submission.
+
+3. **Precondition Purity (Rule 4) Requires Explicit Vocabulary Constraints:** Agents naturally slide into "tester knowledge" framing (e.g., "values known to the tester") unless the instructions explicitly forbid it and provide positive examples of "system exposure" language.
+
+4. **Paired Test Symmetry Cannot Be Guaranteed by Per-File Prompts:** Generating Buy and Sell in parallel, even with matching rule sets, leads to divergence. Future iterations should either (a) generate from a shared step template with substitution, or (b) generate Buy first, then explicitly pass Buy as a "golden example" to the Sell generator.
+
+### 17.6 Formal Audit Report
+Full JSON report saved to: `intermediate-states/iteration-10-haiku-thinking-audit/audit-report.json`
+
+Key sections:
+- `audit_iteration`: "9-haiku and 9-gemini comparison"
+- `iterations_compared`: Detailed findings for each file in each iteration
+- `cross_iteration_comparison`: Strengths, weaknesses, symmetry analysis, verdict
+- `final_recommendations`: Priority fixes and future-generation guidance
