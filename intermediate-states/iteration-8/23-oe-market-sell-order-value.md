@@ -5,9 +5,6 @@ Order Value - Market Sell notional uses bid with quantity formula
 - Test List: `[AC-23]`
 - Requirement: `DX-WEB-097` / Order Value in Account Currency (`requirement.md` — Calculation Rules, Market Sell)
 
-# Priority
-High
-
 # Component
 OTC Order Entry
 

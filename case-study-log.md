@@ -189,12 +189,21 @@ We spawned two isolated subagents (Default model for AC-22, Fast model for AC-23
 To correct the asymmetries from Iteration 7, a Single Auditor subagent was run.
 
 ### 12.1 Audit Findings (Iteration 7)
-- The auditor found missing `# Priority` tags in both files.
 - Caught major symmetry gaps: Buy included a bid counterfactual, Sell did not. Sell's Results checked display precision (AC-25 territory) while Buy correctly relegated it to Options.
 
 ### 12.2 Applying Corrections (Iteration 8)
 The auditor generated perfectly symmetrical versions in `intermediate-states/iteration-8/`:
-- Added `# Priority: High` to both.
 - Synchronized Preconditions (all 6 items identical).
 - Synchronized Actions (11-step pattern with primary side quote, opposite quote, expected notional, counterfactual notional, and comparisons).
 - Mirrored Results and Options perfectly.
+
+## 13. Execution State (Iteration 9 - Priority Attribute Removal)
+
+### 13.1 Root Cause of Priority Usage
+The user explicitly ordered the removal of the `# Priority` attribute from all tests. However, the `test-case-auditor` subagent continually enforced its presence. The root cause was that the `Priority` requirement was deeply embedded in multiple core methodology files:
+- `.cursor/skills/test-master/references/test-case-auditor.md` (and its `cursor-methodology` counterpart) listed it as a Mandatory Frontmatter field.
+- The auditor's strict adherence to its instructions caused it to "correct" the lack of Priority by inserting it into Iteration 8's outputs.
+
+### 13.2 Remediation
+1. Removed `Priority` from the Structural Requirements block in `.cursor/skills/test-master/references/test-case-auditor.md` (and the submodule counterpart).
+2. Removed `# Priority` from the generated test cases in `intermediate-states/iteration-8/22-oe-market-buy-order-value.md` and `23-oe-market-sell-order-value.md`.

@@ -5,9 +5,6 @@ Order Value - Market Buy notional uses ask with quantity formula
 - Test List: `[AC-22]`
 - Requirement: `DX-WEB-097` / Order Value in Account Currency (`requirement.md` — Calculation Rules, Market Buy)
 
-# Priority
-High
-
 # Component
 OTC Order Entry
 
