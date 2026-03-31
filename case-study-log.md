@@ -170,3 +170,31 @@ Both agents correctly trusted the explicit mapping in the source document over t
 We cannot instruct generators to silently copy requirements that aren't in the source list. This leads to dangerous assumptions. Instead, we must push the validation upstream.
 
 **Adjustment:** We updated the generator and auditor skills so that "Traceability Inheritance" is explicitly enforced as a strict check against the source `test-list.md`. If the source list itself is asymmetric (e.g., missing a requirement like DX-WEB-086 on AC-11 that is present on AC-10), the auditor MUST flag the `test-list.md` itself as flawed and halt, rather than silently dropping the requirement from the generated test case.
+
+## 11. Execution State (Iteration 7 - Global Methodology & Traceability Symmetry)
+
+To address the traceability drift observed between test cases (e.g., `[AC-22]` mapping to `DX-WEB-097 / Order Value section` while `[AC-23]` mapped only to `Order Value section`), we implemented a new rule in the global methodology: **Traceability Symmetry**.
+
+### 11.1 Updates
+- Added centralized frontmatter (`Global Component Name`, etc.) to the global `.cursor/templates/qa-test-list.md.template`.
+- Added the **Traceability Symmetry Rule** to `.cursor/skills/qa-test-list-generation/SKILL.md` to prevent "lazy abbreviation" when splitting paired test cases.
+- Manually fixed `test-list.md` to explicitly state `DX-WEB-097` for `[AC-23]`.
+
+### 11.2 Iteration 7 Generation Results
+We spawned two isolated subagents (Default model for AC-22, Fast model for AC-23) to generate the test cases based on the global methodology.
+- **Result:** Both subagents successfully generated the cases in `intermediate-states/iteration-7/`. The Traceability blocks were perfectly aligned (`[AC-22]` and `[AC-23]`, both mapping to `DX-WEB-097`). The Guided Intelligence rules (imperative actions, no "when" in Results, correct UI backticks) were mostly followed. However, due to model isolation, structural asymmetries appeared (e.g., Buy included a bid counterfactual step, Sell did not; Sell checked display precision in Results, Buy pointed it to Options).
+
+## 12. Execution State (Iteration 8 - Remediation via Single Auditor)
+
+To correct the asymmetries from Iteration 7, a Single Auditor subagent was run.
+
+### 12.1 Audit Findings (Iteration 7)
+- The auditor found missing `# Priority` tags in both files.
+- Caught major symmetry gaps: Buy included a bid counterfactual, Sell did not. Sell's Results checked display precision (AC-25 territory) while Buy correctly relegated it to Options.
+
+### 12.2 Applying Corrections (Iteration 8)
+The auditor generated perfectly symmetrical versions in `intermediate-states/iteration-8/`:
+- Added `# Priority: High` to both.
+- Synchronized Preconditions (all 6 items identical).
+- Synchronized Actions (11-step pattern with primary side quote, opposite quote, expected notional, counterfactual notional, and comparisons).
+- Mirrored Results and Options perfectly.
