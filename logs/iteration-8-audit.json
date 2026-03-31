@@ -1,0 +1,48 @@
+{
+  "status": "failed",
+  "summary": "Both test cases fail due to critical violations of Rule 3 (Action/Result Separation) by placing cognitive computations and comparisons inside the Actions section. They also violate Rule 1 (Atomicity) by including redundant counterfactual checks.",
+  "findings": [
+    {
+      "file": "22-oe-market-buy-order-value.md",
+      "severity": "critical",
+      "ruleViolated": "Rule 3: Action/Result Separation",
+      "issue": "Actions 8, 9, 10, and 11 contain cognitive computations ('Compute N_ask') and comparisons ('Compare...'), which are not system interactions.",
+      "recommendation": "Remove calculation and comparison steps from Actions. State the expected outcome directly in the Results section, referencing the formulas in Peculiarities."
+    },
+    {
+      "file": "22-oe-market-buy-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Rule 1: Atomicity",
+      "issue": "The test performs a redundant counterfactual check against 'N_bid'. Checking that the value does not equal Bid is unnecessary when AC-23 explicitly covers Sell/Bid logic.",
+      "recommendation": "Remove Precondition 6, Action 6, Action 9, Action 11, and the negative Result bullet."
+    },
+    {
+      "file": "22-oe-market-buy-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Rule 4: Level of Detail",
+      "issue": "Preconditions 4 and 5 describe tester knowledge ('The tester can read...', 'is known to the tester') rather than actual system state.",
+      "recommendation": "Rewrite preconditions to define the system state (e.g., 'Instrument has defined LotSize and InstrumentMultiplier')."
+    },
+    {
+      "file": "23-oe-market-sell-order-value.md",
+      "severity": "critical",
+      "ruleViolated": "Rule 3: Action/Result Separation",
+      "issue": "Actions 8, 9, 10, and 11 contain cognitive computations ('Compute N_bid') and comparisons ('Compare...').",
+      "recommendation": "Remove calculation and comparison steps from Actions. State the expected outcome directly in the Results section."
+    },
+    {
+      "file": "23-oe-market-sell-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Rule 1: Atomicity",
+      "issue": "The test performs a redundant counterfactual check against 'N_ask', which is unnecessary when AC-22 covers the Buy/Ask logic.",
+      "recommendation": "Remove Precondition 6, Action 6, Action 9, Action 11, and the negative Result bullet."
+    },
+    {
+      "file": "23-oe-market-sell-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Rule 4: Level of Detail",
+      "issue": "Preconditions 4 and 5 describe tester knowledge rather than system state.",
+      "recommendation": "Rewrite preconditions to define the system state."
+    }
+  ]
+}

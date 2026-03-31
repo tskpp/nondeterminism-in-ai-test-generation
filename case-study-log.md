@@ -207,3 +207,20 @@ The user explicitly ordered the removal of the `# Priority` attribute from all t
 ### 13.2 Remediation
 1. Removed `Priority` from the Structural Requirements block in `.cursor/skills/test-master/references/test-case-auditor.md` (and the submodule counterpart).
 2. Removed `# Priority` from the generated test cases in `intermediate-states/iteration-8/22-oe-market-buy-order-value.md` and `23-oe-market-sell-order-value.md`.
+
+## 14. Execution State (Iteration 10 - Removing Redundant Cognition and Counterfactuals)
+
+### 14.1 Audit Findings (Iteration 8 Review)
+The user requested an analysis of Iteration 8 for redundancy. We identified several critical methodological flaws:
+1. **Cognitive Actions:** The `Actions` sections contained steps like "Compute N_ask" and "Compare the recorded Order Value". These are mental math steps, not physical interactions with the system.
+2. **Counterfactual Checking:** Both tests computed the opposite side's formula (e.g., calculating Bid logic in a Buy test) just to prove the final outcome differed from it. This violates Atomicity because it cross-pollinates logic that is already covered by the opposing test case (`[AC-23]`).
+3. **Tester-Centric Preconditions:** Preconditions specified what "the tester can read" rather than defining the explicit system state.
+
+### 14.2 Root Cause Analysis
+The methodology's Action/Result separation rules and Atomicity rules were not explicit enough regarding mathematical formulas and scenario isolation. The generator over-engineered the tests, treating them as isolated mathematical proofs instead of atomic verifications of expected positive paths. It treated the `Actions` list as a human's mental worksheet rather than a sequence of strict system inputs.
+
+### 14.3 Methodology Remediation
+We updated the core skills instead of manually fixing the generated tests, ensuring the agents stop making these assumptions globally:
+1. **Anti-Cognitive Rule:** Updated `.cursor/skills/qa-descriptive-test-generation/SKILL.md` (Phase 0.5, Rule 2) and the `test-case-auditor.md` (Rule 3) to explicitly ban cognitive steps, computations, and comparisons in the `Actions` section.
+2. **Anti-Counterfactual Rule:** Added explicit instructions forbidding agents from computing or asserting the outcome of the opposite scenario just to prove a mismatch.
+3. **System-State Preconditions:** Mandated that Preconditions must define objective system states, explicitly banning descriptions of tester knowledge or capabilities.
