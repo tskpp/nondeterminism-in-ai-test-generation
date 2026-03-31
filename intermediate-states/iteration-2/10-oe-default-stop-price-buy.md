@@ -33,12 +33,4 @@ Order Entry Form, Validation Engine
 - Display rounding for the default Stop price is covered under `[AC-14a]`.
 
 # Peculiarities
-Use the quote snapshot at the instant the `Order type` becomes `Stop`. Let A = Ask and B = Bid from that snapshot. Let D = Stop/Limit distance in pips, P = pip_size, and I = price_increment.
-
-Compute default_distance in price units as:
-default_distance = (D × P) + ((1.5 × |A − B| / P) × max(P, I))
-
-For a Buy Stop default pending price, the expected value before any separate display-rounding rule is:
-expected_default_price = A + default_distance
-
-6. Compare the recorded `Order Price` to the expected default price (A + default_distance), stepped to the `price_increment` grid.
+- Per Confluence default-distance rules, the default distance is computed and applied to the price. Ensure to verify this calculation manually against the live quote.

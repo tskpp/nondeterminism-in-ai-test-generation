@@ -3,7 +3,7 @@ Order Price - Default stop populated for Sell
 
 **Traceability:**
 - Test List: `[AC-11]`
-- Requirement: `DX-WEB-095`, `DX-WEB-086`
+- Requirement: `DX-WEB-095`
 
 # Component
 OTC Order Entry
@@ -33,4 +33,3 @@ Order Entry Form, Validation Engine
 - Display rounding for the default Stop price is covered under `[AC-14c]`.
 
 # Peculiarities
-The price does not re-tick after the order type is switched.
