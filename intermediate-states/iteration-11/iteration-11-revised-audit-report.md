@@ -22,13 +22,15 @@ Machine-readable detail: `iteration-11-revised-audit.json`.
 
 ### Critical
 
-| Check | Status |
-|--------|--------|
-| Ask ≠ Bid not a hard precondition | **FAIL** — Precondition 6 requires Ask ≠ Bid for isolating formula legs |
-| Actions 1–7 UI-only; no compute/compare in Actions | **FAIL** — Steps 8–9 compute; steps 10–11 compare |
-| Results: primary only; counterfactual in Peculiarities | **FAIL** — Second result bullet is counterfactual |
-| No when/if in Results | **PASS** |
-| No Compute/Compare in Actions 1–7 | **PASS** (steps 8–11 violate overall Actions section) |
+
+| Check                                                  | Status                                                                  |
+| ------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Ask ≠ Bid not a hard precondition                      | **FAIL** — Precondition 6 requires Ask ≠ Bid for isolating formula legs |
+| Actions 1–7 UI-only; no compute/compare in Actions     | **FAIL** — Steps 8–9 compute; steps 10–11 compare                       |
+| Results: primary only; counterfactual in Peculiarities | **FAIL** — Second result bullet is counterfactual                       |
+| No when/if in Results                                  | **PASS**                                                                |
+| No Compute/Compare in Actions 1–7                      | **PASS** (steps 8–11 violate overall Actions section)                   |
+
 
 ### Major
 
@@ -53,12 +55,14 @@ Machine-readable detail: `iteration-11-revised-audit.json`.
 
 ### Critical
 
-| Check | Status |
-|--------|--------|
-| Ask/Bid differ not a hard precondition | **FAIL** — Precondition 6 requires differing quotes for different notionals |
-| Actions free of compute/compare (8–11) | **FAIL** — Same pattern as AC-22 |
-| Single primary result; counterfactual optional | **FAIL** — Two result bullets |
-| Conditional Results | **PASS** |
+
+| Check                                          | Status                                                                      |
+| ---------------------------------------------- | --------------------------------------------------------------------------- |
+| Ask/Bid differ not a hard precondition         | **FAIL** — Precondition 6 requires differing quotes for different notionals |
+| Actions free of compute/compare (8–11)         | **FAIL** — Same pattern as AC-22                                            |
+| Single primary result; counterfactual optional | **FAIL** — Two result bullets                                               |
+| Conditional Results                            | **PASS**                                                                    |
+
 
 ### Major
 
@@ -79,13 +83,15 @@ Machine-readable detail: `iteration-11-revised-audit.json`.
 
 ## Symmetry analysis (Buy vs Sell)
 
-| Dimension | Aligned? |
-|-----------|----------|
-| Preconditions (count and intent) | Partially — same count, wording diverges |
-| Action pattern (11 steps, record/compute/compare layout) | Yes — mirrored ask/bid roles |
-| Results pattern | Yes — both use dual assertions (both non-compliant with revision) |
-| Field naming (“Order Value”) | Mostly — AC-23 Test Items omit “read-only” and quote labels |
-| Traceability | **No** — format and depth differ |
+
+| Dimension                                                | Aligned?                                                          |
+| -------------------------------------------------------- | ----------------------------------------------------------------- |
+| Preconditions (count and intent)                         | Partially — same count, wording diverges                          |
+| Action pattern (11 steps, record/compute/compare layout) | Yes — mirrored ask/bid roles                                      |
+| Results pattern                                          | Yes — both use dual assertions (both non-compliant with revision) |
+| Field naming (“Order Value”)                             | Mostly — AC-23 Test Items omit “read-only” and quote labels       |
+| Traceability                                             | **No** — format and depth differ                                  |
+
 
 **Notable divergences:** traceability blocks, Test Items, precondition 2/4 wording, markdown conventions for side/type, Options and Peculiarities depth.
 
@@ -113,3 +119,4 @@ Machine-readable detail: `iteration-11-revised-audit.json`.
 
 - **JSON:** `qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-11/iteration-11-revised-audit.json`
 - **This report:** `iteration-11-revised-audit-report.md`
+

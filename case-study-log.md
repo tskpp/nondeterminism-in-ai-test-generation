@@ -349,3 +349,53 @@ Following the audit analysis in Iteration 9, a planning session was held to inte
 
 ### 18.4 Predictability Guidelines
 - **Decision:** A new centralized document `predictability-guidelines.md` was created to house the lessons learned from this case study, including parallel vs. sequential trade-offs, vocabulary mapping, and common asymmetry patterns.
+
+---
+
+## 19. Iteration-11 Planning Session: Methodology Enhancements & Decisions
+
+### 19.1 Session Context
+Following the success of Iteration-10 audit, a comprehensive planning session was conducted to refine test generation methodology and address redundancy, false positives/negatives, and unnecessary preconditions discovered in AC-22/AC-23 test cases.
+
+### 19.2 Key Findings
+1. **Ask ≠ Bid Precondition:** Unnecessary blocker. Test validity doesn't depend on spread > 0; counterfactual validation is optional, not required.
+2. **Counterfactual Validation:** Overused. Results included both "equals expected" AND "does not equal counterfactual" as separate assertions; simplified to single assertion with optional counterfactual note.
+3. **Action/Result Separation Violation:** AC-22/AC-23 Actions 8-11 contained computations and comparisons; should be Results-only logic.
+4. **Redundant Preconditions:** "Base currency known/documented", "Live quotes available", "Approved configuration source" were either redundant or ambiguous.
+5. **Environment-Specific Constraints:** "Ask ≠ Bid" artificially constrained test to specific market conditions unrelated to formula validation goal.
+
+### 19.3 Methodology Enhancements Approved
+
+#### P1: Test-Type Definition + Mandatory User Choice
+- **Decision:** Add `test_type` field to test-list.md (visible) + separate test-type-mappings.yaml (generation logic).
+- **Alphabetical Choice Reordering:** Option A (Hybrid), Option B (Rules/Skills), Option C (Template).
+- **Validation Rigor:** Full validation applied regardless of generation method chosen; no waivers.
+
+#### P2: Sources Collection Strategy
+- **Decision:** Generative + Dynamic approach (Approach C).
+  - Sources identified during test generation from requirement analysis
+  - Missing sources resolved dynamically at execution (non-blocking generation wave)
+  - Optional user hints via optional-source-hints.yaml
+- **Deferred:** Full implementation to Iteration-12+
+- **Recorded as Leftover:** See LEFTOVERS.md
+
+#### P3: Counterfactual Validation Best-Practice
+- **Decision:** Approved. Simplified to 3 simple rules:
+  1. Use when wrong input can accidentally produce correct output
+  2. Never make it a blocker (precondition); always optional
+  3. Structure as integrated explanation, not separate result
+- **Applied to:** AC-22/AC-23 re-audit
+
+### 19.4 Decisions Made
+1. **Remove Ask ≠ Bid Precondition:** Test works for all ask-bid scenarios; no false negatives.
+2. **Simplify Counterfactual:** One clear Result + optional counterfactual note in Peculiarities.
+3. **Reduce Preconditions:** AC-22/AC-23 from 7 to 5 (remove redundant "Live quotes", "Approved source", "Base currency" scope blocker).
+4. **Move Computations to Results:** Actions 8-11 logic → Results section (validation-only).
+5. **Formalize 7-Rule Audit Framework:** Rule 1-7 from Iteration-9 now global standard for all test types.
+
+### 19.5 Follow-Up Actions
+- [ ] Implement P1 test-type mechanism in test-list.md
+- [ ] Implement P2 source-resolution-executor (Iteration-12)
+- [ ] Re-audit AC-22/AC-23 with new methodology (Iteration-11 revised)
+- [ ] Update test-case-template to reflect counterfactual best-practice
+- [ ] Generalize 7-rule framework across all test types

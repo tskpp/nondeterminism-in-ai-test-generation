@@ -21,13 +21,11 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 
 # Preconditions
 
-1. User is logged into the trading platform. The account's **base currency** must be explicitly confirmed or documented (via UI, configuration, or documentation) prior to test execution.
+1. User is logged into the trading platform with an account whose **base currency** is known.
 2. **Order Entry** is open for a **new** opening order on a tradable instrument.
 3. The instrument is a **standard marginal FX or CFD** instrument (not Spread Bet, Direct Exchange, Net-based FX, or other excluded extensions per `test-list.md` working assumptions).
-4. The tester can obtain **QtyLots** (order size in lots), **LotSize**, and **InstrumentMultiplier** from the trading UI, instrument metadata, or an **approved configuration source** for that symbol at test time.
-5. Live quotes are available: **Current Ask** and **Current Bid** are both shown on Order Entry (or equivalent approved source synchronized with OE) for the symbol.
-6. At the recording instant, **Ask ≠ Bid** so that **Q × LS × M × Ask** and **Q × LS × M × Bid** yield **different** instrument-currency notionals before conversion (isolates ask vs bid in the formula).
-7. **Order type** can be set or confirmed as **Market**; **Buy** side is selectable.
+4. **QtyLots** (order size in lots), **LotSize**, and **InstrumentMultiplier** are obtainable from the trading UI or instrument metadata for that symbol.
+5. **Order type** can be set or confirmed as **Market**; **Buy** side is selectable.
 
 # Actions
 
@@ -38,15 +36,10 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 5. At that **same instant**, record **A** = **Current Ask Price** shown on Order Entry for the **Buy** / market context. [Valid: live quote present; if tiered pricing applies per `[AC-08]`, the **Ask** used for sizing-sensitive displays must be the one shown for the **current** lot size]
 6. At the **same instant**, record **Bid** = **Current Bid Price** shown for the **Sell** side (or the paired bid for the symbol per UI layout).
 7. At the **same instant**, record the numeric **Order Value** shown in the read-only **Order Value** field, including its **currency** (must be **account base currency**).
-8. Compute **N_ask** = **Q × LS × M × A** per **Peculiarities** (instrument value currency). Apply conversion **C** from instrument value currency to account base currency using an **environment-approved** reference rate/method for that snapshot instant. Format the result to **account base currency** display rules to obtain **expected Order Value (ask-based)**.
-9. Compute **N_bid** = **Q × LS × M × Bid** with the same **Q**, **LS**, **M**, and recorded **Bid**. Apply the **same** **C** and **same** formatting rules as in step 8 to obtain **counterfactual Order Value (bid-based)**.
-10. Compare the recorded **Order Value** from step 7 to **expected Order Value (ask-based)** from step 8. [Validation: numeric equality within agreed tolerance if intermediate rounding is specified by approved reference; otherwise exact match per environment convention]
-11. Compare the recorded **Order Value** from step 7 to **counterfactual Order Value (bid-based)** from step 9.
 
 # Results
 
-- The **Order Value** from step 7 **matches** the **expected Order Value (ask-based)** from step 8 (per agreed tolerance / formatting rules).
-- The **Order Value** from step 7 **does not match** the **counterfactual Order Value (bid-based)** from step 9 (demonstrating use of **Ask**, not **Bid**, for Market Buy notional).
+- Compute **N_ask** = **Q × LS × M × A** using the formula from Peculiarities. Apply conversion **C** from instrument value currency to account base currency using an environment-approved reference rate/method for the snapshot instant. Format to account base currency display rules. The recorded **Order Value** from step 7 **equals** this computed value (per agreed tolerance / formatting rules).
 
 # Options
 
@@ -63,7 +56,8 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 - **Q** = **QtyLots** (lots entered in the size control)
 - **LS** = **LotSize**
 - **M** = **InstrumentMultiplier** (same as **Multiplier** in the test-list header)
-- **A** = **Current Ask Price** at the UI snapshot (the **Ask** recorded in Actions)
+- **A** = **Current Ask Price** at the UI snapshot (the **Ask** recorded in Action 5)
+- **B** = **Current Bid Price** at the UI snapshot (the **Bid** recorded in Action 6)
 
 **Instrument-currency notional (before conversion to account base) for Market Buy:**
 
@@ -71,9 +65,12 @@ Order Entry Form, **Order Value** display (read-only), **Current Ask** / **Curre
 
 Per `requirement.md` (Order Value / **Market Buy**), **Order Value** = **Q × LS × M × A** in instrument terms, then **converted from the instrument's value currency into the account base currency**. The captured requirement text does not define the conversion rate or method; **C** denotes that mapping from **N_ask** (instrument currency) to account base currency at the snapshot instant—obtain **C** from an **environment-approved** source (e.g. risk/pricing reference, approved calculator, or `[IG-05]` fixture procedure).
 
+**Counterfactual Validation (Optional):**
+
+If testing in an environment where **Ask ≠ Bid**, you may optionally compute **N_bid** = **Q × LS × M × B** using the recorded **Bid** and apply the same conversion **C** and formatting rules. Then verify that the recorded **Order Value** does NOT equal this bid-based counterfactual value. This optional check proves the implementation uses **Ask** specifically (not **Bid**), but is not required if **Ask** and **Bid** are equal in your environment.
+
 **Edge / definition notes:**
 
-- If **account base currency** equals the instrument **value currency**, **C** may be identity; the test still asserts the **Q × LS × M × A** leg via step 10 vs step 11 when **Ask ≠ Bid**.
+- If **account base currency** equals the instrument **value currency**, **C** may be identity; the test still asserts the **Q × LS × M × A** leg correctly.
 - **Order Value** field precision is governed by **account base currency** rules; do not fold a separate precision assertion here—defer to `[AC-25]` for precision-focused checks.
-- **Counterfactual** uses **Bid** only to prove the **Ask** leg; it is not a product requirement for Market Buy display.
 
