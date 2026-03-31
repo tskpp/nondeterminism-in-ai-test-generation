@@ -1,0 +1,120 @@
+{
+  "audit_iteration": "9-haiku and 9-gemini comparison",
+  "audit_date": "2026-03-31",
+  "summary": "Iteration 9-haiku fails primarily on Rule 3: cognitive steps (compute, compare) live in Actions. Preconditions in both iterations partly describe data availability as tester knowledge rather than pure system state. Iteration 9-gemini Buy aligns Actions with interactions only, but 9-gemini Sell diverges from Buy and from domain wording by using Order Price, weaker preconditions, and asymmetric Options. Symmetry across Buy/Sell is strong in Haiku and weak in Gemini.",
+  "iterations_compared": {
+    "9-haiku": {
+      "status": "failed",
+      "file_findings": [
+        {
+          "file": "10-oe-default-stop-price-buy.md",
+          "severity": "critical",
+          "ruleViolated": "Rule 3: Action/Result Separation",
+          "issue": "Actions steps 2–3 and 7 perform computation and comparison (\"Compute default_distance\", \"Compute expected_default_stop\", \"Compare the value from step 6 to expected_default_stop\"). Per auditor guide, calculations and assertions belong in Results/Peculiarities, not Actions.",
+          "recommendation": "Keep Actions to recording snapshots, selections, waits, and field reads. State the expected numeric relationship in Results using the formula defined in Peculiarities and the values recorded in Actions."
+        },
+        {
+          "file": "10-oe-default-stop-price-buy.md",
+          "severity": "major",
+          "ruleViolated": "Rule 4: Level of Detail (Precondition Purity)",
+          "issue": "Precondition 3 states parameters are \"known from product configuration or the UI\" with a Valid clause about values sufficient to compute — this frames availability as tester-derived knowledge rather than only describing observable system-presented state.",
+          "recommendation": "Rewrite preconditions to assert the platform exposes streaming Ask/Bid and displays or otherwise exposes pip_size, price_increment, and Stop/Limit distance for the open instrument (no reference to tester knowledge)."
+        },
+        {
+          "file": "11-oe-default-stop-price-sell.md",
+          "severity": "critical",
+          "ruleViolated": "Rule 3: Action/Result Separation",
+          "issue": "Same pattern as Buy: Actions steps 2–3 and 7 contain \"Compute\" and \"Compare\" cognitive steps.",
+          "recommendation": "Same as Buy: move mathematical expectation and equality checks into Results; Actions only interact and record."
+        },
+        {
+          "file": "11-oe-default-stop-price-sell.md",
+          "severity": "major",
+          "ruleViolated": "Rule 4: Level of Detail (Precondition Purity)",
+          "issue": "Precondition 3 mirrors Buy — \"known from product configuration or the UI\" wording.",
+          "recommendation": "Align preconditions with system-visible streaming quotes and exposed contract/instrument parameters only."
+        }
+      ]
+    },
+    "9-gemini": {
+      "status": "needs_improvement",
+      "file_findings": [
+        {
+          "file": "10-oe-default-stop-price-buy.md",
+          "severity": "minor",
+          "ruleViolated": "Rule 4: Level of Detail / Structural tone",
+          "issue": "Summary uses a long em dash title style (\"OTC Order Entry — Verify...\") rather than the concise Object - Action pattern used elsewhere in the case study (e.g. Haiku).",
+          "recommendation": "Normalize Summary to \"Buy Stop default Stop price - Verify ...\" (or equivalent) for consistency with paired Sell and golden examples."
+        },
+        {
+          "file": "10-oe-default-stop-price-buy.md",
+          "severity": "minor",
+          "ruleViolated": "Rule 4: Level of Detail",
+          "issue": "Results embed the full formula inline, duplicating Peculiarities intent; not a violation of policy but increases maintenance burden if the formula changes.",
+          "recommendation": "Keep formula once in Peculiarities; Results reference recorded steps and Peculiarities for default_distance (optional polish)."
+        },
+        {
+          "file": "11-oe-default-stop-price-sell.md",
+          "severity": "major",
+          "ruleViolated": "Rule 5: Terminology Consistency",
+          "issue": "Sell case uses \"Order Price\" for the pending price field while Buy uses \"Stop\" price field and Haiku uses `Stop` price field for both. Domain and AC pairing require consistent field naming.",
+          "recommendation": "Use the same label as the product and Buy sibling (Stop price field / equivalent) throughout Sell Actions and Results."
+        },
+        {
+          "file": "11-oe-default-stop-price-sell.md",
+          "severity": "major",
+          "ruleViolated": "Rule 7: Symmetry and Cross-Validation",
+          "issue": "Paired Buy (Gemini) and Sell differ in field name, snapshot timing narrative (Buy records after type selection; Sell records Bid/Ask before switch then switches type), and Sell adds Options deferring rounding to AC-14c while Buy has no parallel Options note.",
+          "recommendation": "Mirror Buy structure: same field terminology, aligned step order for snapshot vs selection, and matching Options (both mention rounding deferral or neither)."
+        },
+        {
+          "file": "11-oe-default-stop-price-sell.md",
+          "severity": "major",
+          "ruleViolated": "Rule 4: Level of Detail (Precondition Purity)",
+          "issue": "Precondition 3 states D, P, and I are \"known to the tester from configuration or instrument metadata\" — explicit tester-knowledge phrasing.",
+          "recommendation": "Replace with preconditions that the instrument's Stop/Limit distance, pip_size, and price_increment are exposed by the platform for the open Order Entry context."
+        },
+        {
+          "file": "11-oe-default-stop-price-sell.md",
+          "severity": "minor",
+          "ruleViolated": "Rule 4: Level of Detail",
+          "issue": "Action Valid clause references \"standard marginal FX or CFD instrument\" without tying to observable system state.",
+          "recommendation": "Use instrument preconditions already stated (e.g. streaming quotes, Stop available) or remove generic market-type wording."
+        }
+      ]
+    }
+  },
+  "cross_iteration_comparison": {
+    "strengths_haiku": [
+      "Buy and Sell cases are structurally symmetric: same sections, same `Stop` price field wording, mirrored Ask+ / Bid− logic, and matching quote-freeze wait condition.",
+      "Explicit display-tolerance wording in Results and Actions Valid clauses (\"within one display tick\") supports flaky-quote and grid alignment.",
+      "Snapshot is taken before order side and Stop type selection, making the reference quote moment explicit for expected default calculation."
+    ],
+    "weaknesses_haiku": [
+      "Critical Rule 3 violations: computation and comparison steps appear in Actions on both files.",
+      "Preconditions still lean on \"known\" configuration/UI phrasing instead of purely observable system exposure of parameters."
+    ],
+    "strengths_gemini": [
+      "Buy test keeps Actions interaction-only (select, record, wait, record) and places the numeric expectation in Results — clean Rule 3 compliance on AC-10.",
+      "Preconditions for Buy describe streaming quotes and platform exposure of parameters without \"known to the tester\" wording.",
+      "Formula and expected relationship for Buy are stated clearly in Results."
+    ],
+    "weaknesses_gemini": [
+      "Sell case breaks terminology (Order Price vs Stop) and structural symmetry with its own Buy case and with Haiku pairs.",
+      "Sell preconditions use tester-knowledge language (Rule 4).",
+      "Inconsistent Options and rounding narrative between Buy and Sell within the same iteration."
+    ],
+    "symmetry_analysis": "Within 9-haiku, Buy and Sell differ only in Sell vs Buy, Bid vs Ask, plus/minus default_distance — appropriate symmetry. Within 9-gemini, Buy uses Stop price field and a post-selection snapshot in step 3; Sell uses Order Price, records quotes before switching type, and adds Options for AC-14c — major asymmetry in labels, flow, and ancillary notes, violating Rule 7 for paired AC-10/AC-11 design.",
+    "better_attempt": "tie",
+    "reasoning": "Haiku is stronger for paired-case symmetry, consistent domain terminology, and explicit tick tolerance, but fails on Rule 3. Gemini Buy is stronger on Action/Result separation but the iteration as a whole is weakened by the Sell variant. No single iteration dominates all audit dimensions; the synthesized target takes Gemini-style Actions for both sides plus Haiku-style symmetry, field labels, tolerance, and snapshot ordering."
+  },
+  "final_recommendations": {
+    "which_to_improve": "both",
+    "priority_fixes": [
+      "Remove all computation and comparison steps from Actions (9-haiku critical); express expectations only in Results with formulas in Peculiarities.",
+      "Align Gemini Sell field naming and step structure with Buy and with domain Stop price terminology (major).",
+      "Rewrite preconditions in both iterations to describe observable platform/instrument state, not tester knowledge (major).",
+      "Reconcile Buy/Sell Options and rounding references so pairs stay symmetric (major/minor per Rule 7)."
+    ]
+  }
+}
