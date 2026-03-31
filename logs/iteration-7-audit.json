@@ -1,0 +1,72 @@
+{
+  "auditId": "iteration-7-ac22-ac23-order-value",
+  "auditedPaths": [
+    "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/22-oe-market-buy-order-value.md",
+    "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/23-oe-market-sell-order-value.md"
+  ],
+  "rulesApplied": [
+    "test-case-auditor.md §1 Structural Requirements",
+    "test-case-auditor.md §2 Rule 7: Symmetry and Cross-Validation",
+    "case-study-log.md Rule 7 (Symmetry and Cross-Validation)"
+  ],
+  "testListTraceabilityNote": {
+    "file": "qa-sessions/web-otc-order-entry/test-list.md",
+    "observation": "[AC-22] and [AC-23] both map to DX-WEB-097 / Order Value section with symmetric requirement coverage; no test-list asymmetry flagged for this pair."
+  },
+  "status": "needs_improvement",
+  "summary": "Pair verifies the correct market-side quote in the notional formula, but iteration-7 drifts: Buy is stronger (preconditions, dual-quote capture, counterfactual) while Sell omits the mirrored structure and mixes in an AC-25 precision assertion. Both files omit mandatory Priority metadata.",
+  "findings": [
+    {
+      "file": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/22-oe-market-buy-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Structural Requirements — Mandatory Frontmatter/Metadata",
+      "issue": "Missing **Priority** section required by test-case-auditor.md (mandatory alongside Summary, Component, Severity).",
+      "recommendation": "Insert `# Priority` with a capitalized level (e.g. High) immediately after the traceability block, matching the paired case."
+    },
+    {
+      "file": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/23-oe-market-sell-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Rule 7: Symmetry and Cross-Validation",
+      "issue": "Compared to the Buy case, Sell lacks precondition that Ask and Bid yield distinct notionals, does not record the non-primary quote (Ask), and has no counterfactual computation step; the Buy case’s explicit evidence pattern (primary formula vs opposite quote) is the superior structure and must be mirrored.",
+      "recommendation": "Add the same quote-divergence precondition, record Ask after Bid, compute N_ask as counterfactual with the same C and formatting, and add Results bullets parallel to Buy (equals bid-based expected; does not equal ask-based counterfactual)."
+    },
+    {
+      "file": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/23-oe-market-sell-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Intent decomposition / Action–Result separation (auditor §2 Rule 3 + §3)",
+      "issue": "Results assert account base currency display precision, which overlaps `[AC-25]` while the Buy case defers precision to Options; paired cases disagree on scope boundaries.",
+      "recommendation": "Remove the precision assertion from Results; reference `[AC-25]` in Options like the Buy file."
+    },
+    {
+      "file": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/23-oe-market-sell-order-value.md",
+      "severity": "major",
+      "ruleViolated": "Structural Requirements — Mandatory Frontmatter/Metadata",
+      "issue": "Missing **Priority** section required by test-case-auditor.md.",
+      "recommendation": "Insert `# Priority` matching the Buy case."
+    },
+    {
+      "file": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/22-oe-market-buy-order-value.md",
+      "severity": "minor",
+      "ruleViolated": "Rule 5: Terminology Consistency",
+      "issue": "Precondition 5 names base currency only; Sell’s precondition 5 also named display precision—after alignment, both should use the same precondition set so neither pair member implies extra scope.",
+      "recommendation": "Use identical precondition numbering and wording across both files; keep precision as a Peculiarities note and AC-25 cross-ref unless AC-25 is executed in a dedicated case."
+    },
+    {
+      "file": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-7/23-oe-market-sell-order-value.md",
+      "severity": "minor",
+      "ruleViolated": "Rule 7: Symmetry and Cross-Validation",
+      "issue": "**Options** lists fewer cross-references than the Buy file (missing AC-25, AF-09, and the AC-26/AC-08 line structure).",
+      "recommendation": "Mirror the Buy Options block with side-appropriate wording (Bid vs Ask)."
+    }
+  ],
+  "remediation": {
+    "targetFolder": "qa-sessions/web-otc-order-entry/case-studies/predictability-analysis/intermediate-states/iteration-8/",
+    "actions": [
+      "Add Priority to both files.",
+      "Unify Preconditions (including quote-divergence) across Buy and Sell.",
+      "Extend Sell Actions/Results to match Buy’s dual-quote and counterfactual pattern.",
+      "Remove AC-25 precision check from Sell Results; align Options blocks.",
+      "Keep Peculiarities to formulas and environment notes only; use N_ask / N_bid naming consistent with each side’s primary formula."
+    ]
+  }
+}
