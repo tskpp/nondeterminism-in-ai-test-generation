@@ -144,9 +144,9 @@ Determine whether consistent, high-quality test generation is achievable through
 - Removed unnecessary preconditions (Ask ≠ Bid, redundant "Live quotes available", ambiguous "Approved configuration source")
 - Simplified counterfactual validation to 3 clear rules (use when wrong input can produce correct output, never block generation, integrate as explanation not separate result)
 - Moved computation/comparison logic from Actions to Results (Action/Result separation enforcement)
-- Generalized paired-test approach for any variant (Buy/Sell, Account/Demo, Synchronized/Asynchronous)
+- Generalized paired-test approach for any variant (Buy/Sell, +/-, Synchronized/Asynchronous)
 
-**Files:** See `/intermediate-states/iteration-11/` folder and associated revision reports; methodology updates reflected in global `.cursor/` files
+**Files:** See `/intermediate-states/iteration-11/` folder and associated revision reports.
 
 ---
 
